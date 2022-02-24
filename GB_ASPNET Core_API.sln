@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GB_ASP.NET Core_API", "GB_ASP.NET Core_API\GB_ASP.NET Core_API.csproj", "{703E16B7-7D48-4F0E-8174-C6377816EF10}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GB_ASPNET Core_API", "GB_ASP.NET Core_API\GB_ASPNET Core_API.csproj", "{703E16B7-7D48-4F0E-8174-C6377816EF10}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

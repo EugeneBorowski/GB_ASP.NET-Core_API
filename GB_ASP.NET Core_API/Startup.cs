@@ -1,14 +1,8 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace GB_ASP.NET_Core_API
 {
@@ -26,6 +20,7 @@ namespace GB_ASP.NET_Core_API
         {
 
             services.AddControllers();
+            services.AddSingleton<ValuesHolder>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
