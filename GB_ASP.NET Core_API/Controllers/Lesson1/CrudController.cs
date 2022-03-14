@@ -1,5 +1,5 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace GB_ASP.NET_Core_API.Controllers.Lesson1
 {
@@ -12,7 +12,7 @@ namespace GB_ASP.NET_Core_API.Controllers.Lesson1
 
         public CrudController(ValuesHolder holder)
         {
-            //_logger = logger;ILogger<WeatherForecastController> logger,
+            //_logger = logger;
             _holder = holder;
         }
 
@@ -26,7 +26,7 @@ namespace GB_ASP.NET_Core_API.Controllers.Lesson1
         }
 
         [HttpGet, Route("read/{from}/{to}")]
-        public IActionResult Read([FromRoute] string from,string to)
+        public IActionResult Read([FromRoute] string from, string to)
         {
             var result = "Search result:" + "\n";
             foreach (var value in _holder.Values)
@@ -52,7 +52,6 @@ namespace GB_ASP.NET_Core_API.Controllers.Lesson1
                 }
             }
             return Ok("Items edited: " + count);
-
         }
 
         [HttpDelete, Route("delete/{from}/{to}")]
@@ -67,7 +66,7 @@ namespace GB_ASP.NET_Core_API.Controllers.Lesson1
                 }
             }
             _holder.Values.RemoveAll(match => match.Date >= DateTime.Parse(from) && match.Date <= DateTime.Parse(to));
-            return Ok("Items removed: "+count);
+            return Ok("Items removed: " + count);
         }
     }
 }
