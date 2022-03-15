@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace GB_ASP.NET_Core_API
+namespace MetricsAgent
 {
     public class Program
     {
