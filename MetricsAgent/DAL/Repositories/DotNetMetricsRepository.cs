@@ -1,48 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Linq;
 using Dapper;
-using MetricsAgent.Interface;
-using MetricsAgent.Models;
+using MetricsAgent.DAL.Interfaces;
+using MetricsAgent.DAL.Models;
 
-namespace MetricsAgent.DAL
+namespace MetricsAgent.DAL.Repositories
 {
-    public interface IRamMetricsRepository : IRepository<RamMetrics>
+    public class DotNetMetricsRepository : IDotNetMetricsRepository
     {
-
-    }
-    public class RamMetricsRepository : IRamMetricsRepository
-    {
-        public RamMetricsRepository()
+        public DotNetMetricsRepository()
         {
             SqlMapper.AddTypeHandler(new TimeSpanHandler());
         }
 
+
         private const string ConnectString = "DataSource=metrics.db;Version=3;Pooling=true;Max Pool Size=100";
 
-        public IList<RamMetrics> GetAll()
+        public IList<DotNetMetrics> GetAll()
         {
             using var connection = new SQLiteConnection(ConnectString);
             {
-                return connection.Query<RamMetrics>("SELECT * FROM Rammetrics").ToList();
+                return connection.Query<DotNetMetrics>("SELECT * FROM dotnetmetrics").ToList();
             }
         }
 
-        public RamMetrics GetById(int id)
+        public DotNetMetrics GetById(int id)
         {
             using var connection = new SQLiteConnection(ConnectString);
-            return connection.QuerySingle<RamMetrics>("SELECT * FROM Rammetrics WHERE id=@id", new
+            return connection.QuerySingle<DotNetMetrics>("SELECT * FROM dotnetmetrics WHERE id=@id", new
             {
                 id
             });
         }
 
-        public void Create(RamMetrics item)
+        public void Create(DotNetMetrics item)
         {
             using var connection = new SQLiteConnection(ConnectString);
             {
-                connection.Execute("INSERT INTO Rammetrics (value, time) VALUES(@value, @time)", new
+                connection.Execute("INSERT INTO dotnetmetrics (value, time) VALUES(@value, @time)", new
                 {
                     value = item.Value,
                     time = item.Time.TotalSeconds
@@ -50,11 +46,11 @@ namespace MetricsAgent.DAL
             }
         }
 
-        public void Update(RamMetrics item)
+        public void Update(DotNetMetrics item)
         {
             using var connection = new SQLiteConnection(ConnectString);
             {
-                connection.Execute("UPDATE Rammetrics SET value = @value, time=@time WHERE id=@id", new
+                connection.Execute("UPDATE dotnetmetrics SET value = @value, time=@time WHERE id=@id", new
                 {
                     value = item.Value,
                     time = item.Time.TotalSeconds,
@@ -63,10 +59,10 @@ namespace MetricsAgent.DAL
             }
         }
 
-        public void Delete(RamMetrics item)
+        public void Delete(DotNetMetrics item)
         {
             using var connection = new SQLiteConnection(ConnectString);
-            connection.Execute("DELETE FROM Rammetrics WHERE id=@id", new
+            connection.Execute("DELETE FROM dotnetmetrics WHERE id=@id", new
             {
                 id = item.Id
             });

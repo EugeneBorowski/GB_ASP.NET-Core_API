@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace MetricsAgent.Models
+namespace MetricsAgent.DAL.Models
 {
-    public class NetworkMetrics
+    public class RamMetrics
     {
         public int Id { get; set; }
         public int Value { get; set; }

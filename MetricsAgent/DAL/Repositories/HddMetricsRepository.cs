@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Linq;
 using Dapper;
-using MetricsAgent.Interface;
-using MetricsAgent.Models;
+using MetricsAgent.DAL.Interfaces;
+using MetricsAgent.DAL.Models;
 
-namespace MetricsAgent.DAL
+namespace MetricsAgent.DAL.Repositories
 {
-    public interface IHddMetricsRepository : IRepository<HddMetrics>
-    {
-
-    }
     public class HddMetricsRepository : IHddMetricsRepository
     {
         public HddMetricsRepository()

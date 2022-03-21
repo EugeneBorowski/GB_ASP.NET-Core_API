@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MetricsAgent.Interface
+namespace Core.Interfaces
 {
     public interface IRepository<T> where T : class
     {

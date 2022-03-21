@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using MetricsAgent.DAL;
-using MetricsAgent.Models;
+﻿using MetricsAgent.DAL.Interfaces;
 using MetricsAgent.Requests;
 using MetricsAgent.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using MetricsAgent.DAL.Models;
 
 namespace MetricsAgent.Controllers
 {
@@ -62,7 +62,7 @@ namespace MetricsAgent.Controllers
         [HttpGet("available")]
         public IActionResult GetRamMetrics()
         {
-            _logger.LogInformation("GetRamMetrics call: " + fromTime + " " + toTime);
+            _logger.LogInformation("AgentAvailableRam call");
             return Ok();
         }
     }

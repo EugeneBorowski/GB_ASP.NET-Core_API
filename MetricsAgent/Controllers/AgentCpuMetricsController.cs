@@ -1,11 +1,11 @@
-﻿using MetricsAgent.DAL;
-using MetricsAgent.Models;
+﻿using MetricsAgent.DAL.Interfaces;
 using MetricsAgent.Requests;
 using MetricsAgent.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using MetricsAgent.DAL.Models;
 
 namespace MetricsAgent.Controllers
 {
@@ -21,7 +21,6 @@ namespace MetricsAgent.Controllers
             _repository = repository;
             _logger = logger;
         }
-
 
         [HttpPost("create")]
         public IActionResult Create([FromBody] CpuMetricsCreateRequest request)

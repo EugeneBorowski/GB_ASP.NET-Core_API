@@ -1,10 +1,12 @@
-using MetricsAgent.DAL;
+using MetricsAgent.DAL.Interfaces;
+using MetricsAgent.DAL.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Data.SQLite;
+using Core.Interfaces;
 
 namespace MetricsAgent
 {
@@ -23,6 +25,7 @@ namespace MetricsAgent
 
             services.AddControllers();
             ConfigureSqLiteConnection(services);
+            services.AddTransient<INotifier, Notifier1>();
             services.AddScoped<ICpuMetricsRepository, CpuMetricsRepository>();
         }
 
@@ -44,7 +47,7 @@ namespace MetricsAgent
                 command.ExecuteNonQuery();
             }
         }
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
