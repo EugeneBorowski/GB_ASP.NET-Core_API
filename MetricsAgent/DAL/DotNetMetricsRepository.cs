@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using Dapper;
 using MetricsAgent.Interface;
 using MetricsAgent.Models;
 
@@ -12,6 +13,8 @@ namespace MetricsAgent.DAL
     }
     public class DotNetMetricsRepository : IDotNetMetricsRepository
     {
+
+
         private const string ConnectString = "DataSource=metrics.db;Version=3;Pooling=true;Max Pool Size=100";
 
         public IList<DotNetMetrics> GetAll()
