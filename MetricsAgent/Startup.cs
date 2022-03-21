@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Data.SQLite;
+using AutoMapper;
 using Core.Interfaces;
 
 namespace MetricsAgent
@@ -27,6 +28,9 @@ namespace MetricsAgent
             ConfigureSqLiteConnection(services);
             services.AddTransient<INotifier, Notifier1>();
             services.AddScoped<ICpuMetricsRepository, CpuMetricsRepository>();
+            var mapperConfiguration = new MapperConfiguration(mp => mp.AddProfile(new MapperProfile()));
+            var mapper = mapperConfiguration.CreateMapper();
+            services.AddSingleton(mapper);
         }
 
         private void ConfigureSqLiteConnection(IServiceCollection services)

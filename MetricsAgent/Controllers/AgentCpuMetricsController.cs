@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using AutoMapper;
 using MetricsAgent.DAL.Models;
 
 namespace MetricsAgent.Controllers
@@ -15,11 +16,13 @@ namespace MetricsAgent.Controllers
     {
         private ICpuMetricsRepository _repository;
         private readonly ILogger<AgentCpuMetricsController> _logger;
+        private readonly IMapper _mapper;
 
-        public AgentCpuMetricsController(ICpuMetricsRepository repository, ILogger<AgentCpuMetricsController> logger)
+        public AgentCpuMetricsController(ICpuMetricsRepository repository, ILogger<AgentCpuMetricsController> logger, IMapper mapper)
         {
             _repository = repository;
             _logger = logger;
+            _mapper = mapper;
         }
 
         [HttpPost("create")]
@@ -39,8 +42,7 @@ namespace MetricsAgent.Controllers
         public IActionResult GetAll()
         {
             _logger.LogInformation("AgentCpuMetricsControllerGetAll call");
-            var metrics = _repository.GetAll();
-
+            IList<CpuMetrics> metrics = _repository.GetAll();
             var response = new AllCpuMetricsResponse
             {
                 Metrics = new List<CpuMetricsDto>()
@@ -48,12 +50,7 @@ namespace MetricsAgent.Controllers
 
             foreach (var metric in metrics)
             {
-                response.Metrics.Add(new CpuMetricsDto
-                {
-                    Time = metric.Time,
-                    Value = metric.Value,
-                    Id = metric.Id
-                });
+                response.Metrics.Add(_mapper.Map<CpuMetricsDto>(metric));
             }
 
             _logger.LogInformation("AgentCpuMetricsControllerGetAll response:\n");

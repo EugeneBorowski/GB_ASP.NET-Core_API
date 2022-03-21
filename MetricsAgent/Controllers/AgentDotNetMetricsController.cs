@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using AutoMapper;
 using MetricsAgent.DAL.Models;
 
 namespace MetricsAgent.Controllers
@@ -15,11 +16,13 @@ namespace MetricsAgent.Controllers
     {
         private IDotNetMetricsRepository _repository;
         private readonly ILogger<AgentDotNetMetricsController> _logger;
+        private readonly IMapper _mapper;
 
-        public AgentDotNetMetricsController(IDotNetMetricsRepository repository, ILogger<AgentDotNetMetricsController> logger)
+        public AgentDotNetMetricsController(IDotNetMetricsRepository repository, ILogger<AgentDotNetMetricsController> logger, IMapper mapper)
         {
             _repository = repository;
             _logger = logger;
+            _mapper = mapper;
         }
 
         [HttpPost("create")]
@@ -39,8 +42,7 @@ namespace MetricsAgent.Controllers
         public IActionResult GetAll()
         {
             _logger.LogInformation("AgentDotNetMetricsControllerGetAll call");
-            var metrics = _repository.GetAll();
-
+            IList<DotNetMetrics> metrics = _repository.GetAll();
             var response = new AllDotNetMetricsResponse
             {
                 Metrics = new List<DotNetMetricsDto>()
@@ -48,12 +50,7 @@ namespace MetricsAgent.Controllers
 
             foreach (var metric in metrics)
             {
-                response.Metrics.Add(new DotNetMetricsDto
-                {
-                    Time = metric.Time,
-                    Value = metric.Value,
-                    Id = metric.Id
-                });
+                response.Metrics.Add(_mapper.Map<DotNetMetricsDto>(metric));
             }
 
             _logger.LogInformation("AgentDotNetMetricsControllerGetAll response:\n");

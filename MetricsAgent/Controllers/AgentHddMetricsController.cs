@@ -4,6 +4,7 @@ using MetricsAgent.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using AutoMapper;
 using MetricsAgent.DAL.Models;
 
 namespace MetricsAgent.Controllers
@@ -14,11 +15,13 @@ namespace MetricsAgent.Controllers
     {
         private IHddMetricsRepository _repository;
         private readonly ILogger<AgentHddMetricsController> _logger;
+        private readonly IMapper _mapper;
 
-        public AgentHddMetricsController(IHddMetricsRepository repository, ILogger<AgentHddMetricsController> logger)
+        public AgentHddMetricsController(IHddMetricsRepository repository, ILogger<AgentHddMetricsController> logger, IMapper mapper)
         {
             _repository = repository;
             _logger = logger;
+            _mapper = mapper;
         }
 
         [HttpPost("create")]
@@ -38,8 +41,7 @@ namespace MetricsAgent.Controllers
         public IActionResult GetAll()
         {
             _logger.LogInformation("AgentHddMetricsControllerGetAll call");
-            var metrics = _repository.GetAll();
-
+            IList<HddMetrics> metrics = _repository.GetAll();
             var response = new AllHddMetricsResponse
             {
                 Metrics = new List<HddMetricsDto>()
@@ -47,12 +49,7 @@ namespace MetricsAgent.Controllers
 
             foreach (var metric in metrics)
             {
-                response.Metrics.Add(new HddMetricsDto
-                {
-                    Time = metric.Time,
-                    Value = metric.Value,
-                    Id = metric.Id
-                });
+                response.Metrics.Add(_mapper.Map<HddMetricsDto>(metric));
             }
 
             _logger.LogInformation("AgentHddMetricsControllerGetAll response:\n");

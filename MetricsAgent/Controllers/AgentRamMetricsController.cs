@@ -4,6 +4,7 @@ using MetricsAgent.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using AutoMapper;
 using MetricsAgent.DAL.Models;
 
 namespace MetricsAgent.Controllers
@@ -14,11 +15,13 @@ namespace MetricsAgent.Controllers
     {
         private IRamMetricsRepository _repository;
         private readonly ILogger<AgentRamMetricsController> _logger;
+        private readonly IMapper _mapper;
 
-        public AgentRamMetricsController(IRamMetricsRepository repository, ILogger<AgentRamMetricsController> logger)
+        public AgentRamMetricsController(IRamMetricsRepository repository, ILogger<AgentRamMetricsController> logger, IMapper mapper)
         {
             _repository = repository;
             _logger = logger;
+            _mapper = mapper;
         }
 
         [HttpPost("create")]
@@ -38,8 +41,7 @@ namespace MetricsAgent.Controllers
         public IActionResult GetAll()
         {
             _logger.LogInformation("AgentRamMetricsControllerGetAll call");
-            var metrics = _repository.GetAll();
-
+            IList<RamMetrics> metrics = _repository.GetAll();
             var response = new AllRamMetricsResponse
             {
                 Metrics = new List<RamMetricsDto>()
@@ -47,12 +49,7 @@ namespace MetricsAgent.Controllers
 
             foreach (var metric in metrics)
             {
-                response.Metrics.Add(new RamMetricsDto
-                {
-                    Time = metric.Time,
-                    Value = metric.Value,
-                    Id = metric.Id
-                });
+                response.Metrics.Add(_mapper.Map<RamMetricsDto>(metric));
             }
 
             _logger.LogInformation("AgentRamMetricsControllerGetAll response:\n");
