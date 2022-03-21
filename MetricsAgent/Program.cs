@@ -4,14 +4,14 @@ using Microsoft.Extensions.Logging;
 using NLog.Web;
 using System;
 
-namespace GB_ASP.NET_Core_API
+namespace MetricsAgent
 {
     public class Program
     {
         public static void Main(string[] args)
         {
             var logger =
-                NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
+                NLogBuilder.ConfigureNLog("NLog.config").GetCurrentClassLogger();
             try
             {
                 logger.Debug("init main");
