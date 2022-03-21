@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Linq;
 using Dapper;
 using MetricsAgent.Interface;
 using MetricsAgent.Models;
@@ -13,6 +14,10 @@ namespace MetricsAgent.DAL
     }
     public class DotNetMetricsRepository : IDotNetMetricsRepository
     {
+        public DotNetMetricsRepository()
+        {
+            SqlMapper.AddTypeHandler(new TimeSpanHandler());
+        }
 
 
         private const string ConnectString = "DataSource=metrics.db;Version=3;Pooling=true;Max Pool Size=100";
@@ -20,82 +25,52 @@ namespace MetricsAgent.DAL
         public IList<DotNetMetrics> GetAll()
         {
             using var connection = new SQLiteConnection(ConnectString);
-            connection.Open();
-            using var cmd = new SQLiteCommand(connection);
-            cmd.CommandText = "SELECT * FROM dotnetmetrics";
-            var returnlist = new List<DotNetMetrics>();
-            using (SQLiteDataReader reader = cmd.ExecuteReader())
             {
-                while (reader.Read())
-                {
-                    returnlist.Add(new DotNetMetrics
-                    {
-                        Id = reader.GetInt32(0),
-                        Value = reader.GetInt32(1),
-                        Time = TimeSpan.FromSeconds(reader.GetInt32(2))
-                    });
-                }
+                return connection.Query<DotNetMetrics>("SELECT * FROM dotnetmetrics").ToList();
             }
-            return returnlist;
         }
 
         public DotNetMetrics GetById(int id)
         {
             using var connection = new SQLiteConnection(ConnectString);
-            connection.Open();
-            using var cmd = new SQLiteCommand(connection);
-            cmd.CommandText = "SELECT * FROM dotnetmetrics WHERE id=@id";
-            using (SQLiteDataReader reader = cmd.ExecuteReader())
+            return connection.QuerySingle<DotNetMetrics>("SELECT * FROM dotnetmetrics WHERE id=@id", new
             {
-                if (reader.Read())
-                {
-                    return new DotNetMetrics()
-                    {
-                        Id = reader.GetInt32(0),
-                        Value = reader.GetInt32(1),
-                        Time = TimeSpan.FromSeconds(reader.GetInt32(1))
-                    };
-                }
-                else
-                {
-                    return null;
-                }
-            }
+                id
+            });
         }
 
         public void Create(DotNetMetrics item)
         {
             using var connection = new SQLiteConnection(ConnectString);
-            connection.Open();
-            using var cmd = new SQLiteCommand(connection);
-            cmd.CommandText = "INSERT INTO dotnetmetrics (value, time) VALUES(@value, @time)";
-            cmd.Parameters.AddWithValue("@value", item.Value);
-            cmd.Parameters.AddWithValue("@time", item.Time.TotalSeconds);
-            cmd.Prepare();
-            cmd.ExecuteNonQuery();
+            {
+                connection.Execute("INSERT INTO dotnetmetrics (value, time) VALUES(@value, @time)", new
+                {
+                    value = item.Value,
+                    time = item.Time.TotalSeconds
+                });
+            }
         }
 
         public void Update(DotNetMetrics item)
         {
             using var connection = new SQLiteConnection(ConnectString);
-            using var cmd = new SQLiteCommand(connection);
-            cmd.CommandText = "UPDATE dotnetmetrics SET value = @value, time=@time WHERE id=@id";
-            cmd.Parameters.AddWithValue("@id", item.Id);
-            cmd.Parameters.AddWithValue("@value", item.Value);
-            cmd.Parameters.AddWithValue("@time", item.Time.TotalSeconds);
-            cmd.Prepare();
-            cmd.ExecuteNonQuery();
+            {
+                connection.Execute("UPDATE dotnetmetrics SET value = @value, time=@time WHERE id=@id", new
+                {
+                    value = item.Value,
+                    time = item.Time.TotalSeconds,
+                    id = item.Id
+                });
+            }
         }
 
         public void Delete(DotNetMetrics item)
         {
             using var connection = new SQLiteConnection(ConnectString);
-            connection.Open();
-            using var cmd = new SQLiteCommand(connection);
-            cmd.CommandText = "DELETE FROM dotnetmetrics WHERE id=@id";
-            cmd.Parameters.AddWithValue("@id", item.Id);
-            cmd.Prepare();
-            cmd.ExecuteNonQuery();
+            connection.Execute("DELETE FROM dotnetmetrics WHERE id=@id", new
+            {
+                id = item.Id
+            });
         }
     }
 }
