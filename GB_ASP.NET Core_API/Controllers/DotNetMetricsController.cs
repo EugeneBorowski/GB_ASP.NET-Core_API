@@ -1,0 +1,27 @@
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+
+namespace GB_ASP.NET_Core_API.Controllers
+{
+    [Route("api/metrics/dotnet")]
+    [ApiController]
+    public class DotNetMetricsController : ControllerBase
+    {
+        private readonly ILogger<DotNetMetricsController> _logger;
+
+        [HttpGet("agent/{agentId}/from/{fromTime}/to/{toTime}")]
+        public IActionResult GetMetricsFromAgent([FromRoute] int agentId, [FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime)
+        {
+            _logger.LogInformation("DotNetGetMetricsFromAgent call: " + agentId + " " + fromTime + " " + toTime);
+            return Ok();
+        }
+
+        [HttpGet("cluster/from/{fromTime}/to/{toTime}")]
+        public IActionResult GetMetricsFromAllCluster([FromRoute] TimeSpan fromTime, [FromRoute] TimeSpan toTime)
+        {
+            _logger.LogInformation("DotNetGetMetricsFromAllCluster call: " + fromTime + " " + toTime);
+            return Ok();
+        }
+    }
+}
