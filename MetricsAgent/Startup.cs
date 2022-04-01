@@ -1,13 +1,17 @@
+using AutoMapper;
+using Core.Interfaces;
+using FluentMigrator.Runner;
 using MetricsAgent.DAL.Interfaces;
 using MetricsAgent.DAL.Repositories;
+using MetricsAgent.Jobs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Data.SQLite;
-using AutoMapper;
-using Core.Interfaces;
+using Quartz;
+using Quartz.Impl;
+using Quartz.Spi;
 
 namespace MetricsAgent
 {
@@ -19,40 +23,61 @@ namespace MetricsAgent
         }
 
         public IConfiguration Configuration { get; }
+        private const string ConnectionString = @"DataSource = metrics.db;Varsion=3;";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddControllers();
-            ConfigureSqLiteConnection(services);
             services.AddTransient<INotifier, Notifier1>();
             services.AddScoped<ICpuMetricsRepository, CpuMetricsRepository>();
+            services.AddScoped<IDotNetMetricsRepository, DotNetMetricsRepository>();
+            services.AddScoped<IHddMetricsRepository, HddMetricsRepository>();
+            services.AddScoped<INetworkMetricsRepository, NetworkMetricsRepository>();
+            services.AddScoped<IRamMetricsRepository, RamMetricsRepository>();
             var mapperConfiguration = new MapperConfiguration(mp => mp.AddProfile(new MapperProfile()));
             var mapper = mapperConfiguration.CreateMapper();
             services.AddSingleton(mapper);
+
+            services.AddFluentMigratorCore()
+                .ConfigureRunner(rb => rb
+                    .AddSQLite()
+                    .WithGlobalConnectionString(ConnectionString)
+                    .ScanIn(typeof(Startup).Assembly).For.Migrations())
+                    .AddLogging(lb => lb
+                    .AddFluentMigratorConsole());
+            services.AddSingleton<IJobFactory, SingletonJobFactory>();
+            services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+            services.AddSingleton<CpuMetricJob>();
+            services.AddSingleton<DotNetMetricJob>();
+            services.AddSingleton<HddMetricJob>();
+            services.AddSingleton<NetworkMetricJob>();
+            services.AddSingleton<RamMetricJob>();
+            services.AddSingleton(new JobSchedule(
+                jobtype:typeof(CpuMetricJob),
+                cronException:"0/5 * * * * ?"
+                ));
+            services.AddSingleton(new JobSchedule(
+                jobtype: typeof(DotNetMetricJob),
+                cronException: "0/5 * * * * ?"
+            ));
+            services.AddSingleton(new JobSchedule(
+                jobtype: typeof(HddMetricJob),
+                cronException: "0/5 * * * * ?"
+            ));
+            services.AddSingleton(new JobSchedule(
+                jobtype: typeof(NetworkMetricJob),
+                cronException: "0/5 * * * * ?"
+            ));
+            services.AddSingleton(new JobSchedule(
+                jobtype: typeof(RamMetricJob),
+                cronException: "0/5 * * * * ?"
+            ));
+            services.AddHostedService<QuartzHostedService>();
+
         }
 
-        private void ConfigureSqLiteConnection(IServiceCollection services)
-        {
-            const string connectionString = "DataSource = metrics.db;Varsion=3;Pooling=true;Max Pool Size=100";
-            var connection = new SQLiteConnection(connectionString);
-            connection.Open();
-            PrepareSchema(connection);
-        }
-
-        private void PrepareSchema(SQLiteConnection connection)
-        {
-            using (var command = new SQLiteCommand(connection))
-            {
-                command.CommandText = "DROP TABLE IF EXISTS cpumetrics";
-                command.ExecuteNonQuery();
-                command.CommandText = @"CREATE TABLE cpumetrics(id INTEGER PRIMARY KEY, value INT, time INT)";
-                command.ExecuteNonQuery();
-            }
-        }
-
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IMigrationRunner migrationRunner)
         {
             if (env.IsDevelopment())
             {
@@ -67,6 +92,7 @@ namespace MetricsAgent
             {
                 endpoints.MapControllers();
             });
+            migrationRunner.MigrateUp();
         }
     }
 }
